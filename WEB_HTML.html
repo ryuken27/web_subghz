@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!--thêm các thư viện cần dùng -->
+	<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+	<link rel="stylesheet" href="WEB_CSS.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  	<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.2"></script>
+ 	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/1.2.1/exceljs.min.js" integrity="sha512-eKWlYEv9gY7bqXRR9UCmGZYqLO9znN0W84EtpRo2h6jxGHxJ/v0oXofDTLqMzV44KVmM964usJGqVox/tpfKSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<!-- tạo giao diện cho web -->
+<body>
+
+		<div class="khoi1">
+			
+			<!-- khoi 1 -->
+			<div class="thongtin">
+				<img class="anh1" src="khoa.jfif">
+				<div class="logo">
+
+					<div class="logo_giua">
+				
+						<h2>ĐẠI HỌC BÁCH KHOA</h2>
+						<h2>ĐẠI HỌC ĐÀ NẴNG</h2>
+						<h2>KHOA ĐIỆN </h2>
+					</div>
+					<h1>ĐỒ ÁN TỐT NGHIỆP</h1>
+					<h2></h2>
+
+				</div>	
+				<img class="anh2" src="shinko.jpg">	
+										
+			</div>	
+			<div class="logo_duoi">
+				<h3>GVHD: TS. NGÔ ĐÌNH THANH</h3>
+				
+			</div>	
+				<h3 class="duoi_1">CBHD: NGUYỄN CHÍ THẮNG </h3>
+		</div>
+
+<!-------------- hoạt động chung --------------->
+
+	<div class="khoi2">
+
+	<!-- khối điều khiển -->
+		<div class="dieukhien">
+
+			<div class="tieude">
+				<h3>THÔNG SỐ THỰC TẾ </h3>
+			</div>
+
+            <div class = "chedo">
+            	<p>GIÁ TRỊ HIỆN TẠI </p>
+                <div  id ="PV1">
+				<h3> PV : <span id="giatriPV">00</span>&#8451;</h3>
+                </div>
+				
+            </div>
+
+
+            <div class = "chedo">
+            	<p>GIÁ TRỊ ĐÃ CÀI ĐẶT </p>
+                <div  id ="SV1">
+				<h3> SV : <span id="giatriSV">00</span>&#8451;</h3>
+			
+                </div>
+				
+            </div>
+
+			<div class="tieude">
+				<h3>THÔNG SỐ CÀI ĐẶT </h3>
+			</div>
+
+			<div class = "chedo">
+            	<p>GIÁ TRỊ CÀI ĐẶT </p>
+                <div class = "PV" id ="act">
+					 <input type="text" name="SV" id="CV1" placeholder="Nhập dữ liệu" >
+					<br />
+					<div class = "inner-circle"></div>
+					
+                </div>
+				<button id= "send" type="submit" >Submit</button>
+            </div>
+	
+			<div class="tieude">
+				<h3>LỊCH SỬ NHIỆT ĐỘ </h3>
+			</div>
+			
+			<div class = "chedo1">
+			
+				<button id="excel">XUẤT FILE EXCEL</button>
+				<span id="currentDateTime"></span>
+		
+			</div>	
+		
+			<!-- Vùng hiển thị biểu đồ -->
+			
+			<div class="btn_" id="myChart">
+					<!-- cấu hình chi đó -->
+				
+			</div>
+			
+		</div>
+		
+	<!-- khoi hiển thị -->
+
+		
+		<div class="hienthi">
+			<div class="tieude">
+				<h3>BIỂU ĐỒ </h3>
+			</div>
+			<div  class="chartContainer">
+				<canvas id="realTimeChart"></canvas>
+			</div>
+		
+		</div>	
+
+	<!-- ''''''''''''''''''''''''''''''file.Js ''''''''''''''''''''''''''-->
+	
+	<script type="module">
+		
+		
+	// nhập các hàm sử dụng từ các SDK
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+		import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+		import {getDatabase, ref, get, set, child, push, remove, onValue}
+		from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"
+		
+	// Cấu hình Firebase của ứng dụng web 
+		const firebaseConfig = {
+			apiKey: "AIzaSyBkX1ieE1j2bAbY33XiNojMEHzZyJEP5-w",
+			authDomain: "bbbcc-22472.firebaseapp.com",
+			databaseURL: "https://bbbcc-22472-default-rtdb.firebaseio.com",
+			projectId: "bbbcc-22472",
+			storageBucket: "bbbcc-22472.appspot.com",
+			messagingSenderId: "670082950114",
+			appId: "1:670082950114:web:5c5b46f9ec3f39ee884fbb",
+			measurementId: "G-M3KYQY0F66"
+		};
+
+		
+	// Khởi tạo Firebase
+		
+		const app = initializeApp(firebaseConfig);
+		const analytics = getAnalytics(app);
+	
+		const db = getDatabase();
+
+	//gửi dữ liệu từ web lên firebase theo địa chỉ " DATA2/ "
+		var enterID = document.querySelector("#CV1");
+		var insertBtn = document.querySelector("#send");
+		
+			function wirteData() {
+				set(ref(db, "DATA2/"),{
+						
+					SV: CV1.value,
+						
+				})
+				.then(()=>{
+					alert("Data added successfully");
+				})
+				.catch((error)=>{
+					alert(error);
+				});
+			}
+		
+		insertBtn.addEventListener('click', wirteData);
+	
+		// lay du lieu nhiệt độ PV, SV từ firebase về và hiển thị trên web , sử dụng phương thức "onvalue()"
+		// sẽ cập nhật dữ liệu lien tục mỗi khi giá trị nhiệt độ thay dổi 
+				
+			const starCountRefPV = ref(db, 'DATA1/PV');
+			onValue(starCountRefPV, (snapshot) => {
+				const data0 = snapshot.val();
+				console.log(">>>>>>>>>>>>",data0);
+				document.getElementById('giatriPV').innerHTML = data0;
+			});
+				
+			const starCountRefSV = ref(db, 'DATA1/SV');
+			onValue(starCountRefSV, (snapshot) => {
+				const data1 = snapshot.val();
+				console.log(">>>>>>>>>>>>",data1);
+				document.getElementById('giatriSV').innerHTML = data1;
+			});
+		// hiển thị thời gian trên web	//
+		function updateTime() {
+			var currentDate = new Date();
+			var year = currentDate.getFullYear();
+			var month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+			var day = currentDate.getDate().toString().padStart(2, '0');
+			var hour = currentDate.getHours().toString().padStart(2, '0');
+			var minute = currentDate.getMinutes().toString().padStart(2, '0');
+			var second = currentDate.getSeconds().toString().padStart(2, '0');
+
+			var dateTimeString = hour + ':' + minute + ':' + second + ', ' + day + '/' + month + '/' + year;
+
+		// Cập nhật nội dung trong phần tử có id "currentDateTime"
+			document.getElementById('currentDateTime').textContent = dateTimeString;
+		}
+
+		// Cập nhật thời gian mỗi giây
+		setInterval(updateTime, 1000);	
+
+	//'''''''''''''''''''''''''''' vẽ biểu đồ''''''''''''''''''''''''''''' //
+	// Tạo biểu đồ rỗng
+	const canvas = document.getElementById('realTimeChart');
+
+    // Khởi tạo biểu đồ với dữ liệu rỗng
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'NHIỆT ĐỘ HIỆN TẠI',
+          data: [],
+          borderColor: 'blue',
+         // backgroundColor: 'rgba(0, 0, 255, 0.5)',
+         // fill: 'start'
+        }
+		
+		//,{
+      //label: 'NHIỆT ĐỘ ĐÃ CÀI ĐẶT',
+     // data: [],
+     // borderColor: 'red',
+      // backgroundColor: 'rgba(255, 0, 0, 0.5)',
+      // fill: 'start'
+    ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            type: 'time',
+        
+            title: {
+              display: true,
+			  
+              text: 'Time'
+            }
+          },
+          yAxes: [{
+            title: {
+			
+              display: true,
+              text: 'nhiệt độ '
+            },
+			ticks: {
+                    beginAtZero:true,
+					
+                }
+			
+          }]
+          
+        }
+      }
+    });
+    // lay du lieu từ firebase bằng phương thức "onvalue()" để cập nhật vào biểu đồ cho label " nhiệt độ hiện tại "
+	let firebaseData1 = []; // Khởi tạo mảng để lưu dữ liệu từ Firebase		
+	let firebaseData2 = [];
+    const starCountRefP = ref(db, 'history000/PV');
+			onValue(starCountRefP, (snapshot) => {
+			const data = snapshot.val();
+			// console.log(">>>>>>>>>>>>",data); // kiểm tra xem đã có dữ liệu chưa 
+         	firebaseData1 = data;
+			 updateChart() ;
+		});
+	////////////////////////////// cập nhật dữ liệu cho label " nhiệt độ đã cài đặt "
+
+
+	/*
+	const starCountRefD = ref(db, 'DATA1/SV');
+		onValue(starCountRefD, (snapshot) => {
+  		const data = snapshot.val();
+		console.log(">>>>>>>>>>>>",data);
+  		firebaseData2 = data;
+  		updateChart1();
+		});
+		function updateChart1() {
+  			const data2 = [];
+
+  			// Lặp qua dữ liệu từ Firebase và thêm vào mảng data2
+ 			 for (const key in firebaseData2) {
+   			 if (Object.hasOwnProperty.call(firebaseData2, key)) {
+     				 const data = firebaseData2[key];
+     				 data2.push(data);
+   				 }
+ 			 }
+			  console.log(data2);
+  		// Gán dữ liệu mới vào biểu đồ
+  		chart.data.datasets[1].data = data2;
+
+ 		 // Cập nhật biểu đồ
+  		chart.update();
+		}
+*/
+	///////////////////////
+    // Hàm cập nhật biểu đồ với dữ liệu mới
+    function updateChart() {
+     
+		const dataTimeArr = [];
+
+for (const key in firebaseData1) {
+  if (Object.hasOwnProperty.call(firebaseData1, key)) {
+	// Lấy thông tin data và time từ mỗi khóa
+	const { data, time } = firebaseData1[key];
+	//const momentTime = moment(time, 'HH:mm:ss DD/MM/YYYY');
+	//const date = momentTime.format('YYYY-MM-DD');
+	console.log(time);
+
+	const dataTimeObj = {
+	  data: data,
+	  time: time
+	};
+
+	dataTimeArr.push(dataTimeObj);
+  }
+} 
+/*
+// Lọc và lấy giá trị cuối cùng cho các data có cùng thời gian
+const filteredData = {};
+for (const item of dataTimeArr) {
+  const { data, time } = item;
+  if (!filteredData[time]) {
+    filteredData[time] = data;
+  }
+}
+*/
+// Lọc và lấy 20 giá trị cuối cùng (mới nhất)
+const filteredData1 = {};
+const reversedDataTimeArr = dataTimeArr.reverse(); // Đảo ngược mảng để lấy giá trị mới nhất đầu tiên
+
+for (const item of reversedDataTimeArr) {
+const { data, time } = item;
+if (!filteredData1[time]) {
+filteredData1[time] = data;
+}
+
+if (Object.keys(filteredData1).length === 20) {
+break; // Đã lấy đủ 20 giá trị, thoát khỏi vòng lặp
+}
+}
+
+// Đảo ngược lại giá trị để trở lại thứ tự ban đầu
+const finalFilteredData = {};
+Object.keys(filteredData1).reverse().forEach((key) => {
+finalFilteredData[key] = filteredData1[key];
+});
+
+// finalFilteredData chứa 20 giá trị mới nhất
+console.log(finalFilteredData);
+// Xóa dữ liệu hiện tại trong biểu đồ
+chart.data.datasets[0].data = [];
+chart.data.labels = [];
+
+// Thêm dữ liệu đã lọc vào biểu đồ
+for (const key in finalFilteredData) {
+  if (Object.hasOwnProperty.call(finalFilteredData, key)) {
+	const data = finalFilteredData[key];
+	const time = key;
+	chart.data.datasets[0].data.push(data);
+	chart.data.labels.push(time);
+  }
+}
+/*
+const maxDataPoints = 15;
+if (chart.data.labels.length > maxDataPoints) {
+  chart.data.labels.shift();
+  chart.data.datasets[0].data.shift();
+}
+*/
+chart.update();
+}
+
+    // Cập nhật biểu đồ liên tục sau mỗi giây
+   //setInterval(updateChart, 1000);
+			
+	
+//'''''''''''''''gửi dữ liệu lên firebase''''''''''''''' //
+const dm = getDatabase();
+// Hàm lắng nghe sự kiện thay đổi dữ liệu từ Firebase
+ onValue(ref(dm, 'DATA1/PV'), (snapshot) => {
+   const data = snapshot.val();
+   const time = new Date().toLocaleString();
+   const newData = {
+	 data: data,
+	 time: time // Thời gian ghi nhận dữ liệu
+   };
+   console.log('>>>>>', time);
+   pushDataToFirebase(newData);
+ });
+ 
+ // Hàm đẩy dữ liệu lên Firebase
+ function pushDataToFirebase(data) {
+   const dataRef = ref(dm, 'history000/PV');
+   push(dataRef, data)
+	 .then(() => {
+	   console.log(data);
+	   console.log('Đẩy dữ liệu thành công');
+	 })
+	 .catch((error) => {
+	   console.error('Lỗi khi đẩy dữ liệu:', error);
+	 });
+ }
+ 
+ // ''''''''''''''''''''''''xuất dữ liệu nhiệt độ về bảng excel'''''''''''''''''''''''''''//
+ 
+ // Lấy tham chiếu đến nút nhấn
+ const button = document.getElementById('excel');
+ 
+ // Gắn sự kiện click cho nút nhấn
+ button.addEventListener('click', exportToExcel);
+ const database = getDatabase();
+ 
+ async function exportToExcel() {
+   let firebaseData1 = []; // Khởi tạo mảng để lưu dữ liệu từ Firebase
+   
+   const starCountRef = ref(database, 'history000/PV'); // lấy địa chỉ tới firebase
+   
+   const snapshot = await get(starCountRef);
+   const data = snapshot.val();
+   firebaseData1 = Object.values(data);
+   console.log(">>>>>>>>>>>>",firebaseData1);
+
+   const workbook = new ExcelJS.Workbook();
+ 
+   const worksheet = workbook.addWorksheet('Data');
+ 
+ // Chuyển đổi mảng dataArray để phù hợp với việc tải về Excel
+ var rows = firebaseData1.map(item => [item.time, item.data]);
+   worksheet.addRows(rows);
+ 
+   const buffer = await workbook.xlsx.writeBuffer();
+  // console.log(">>>>>>>>>>>>",buffer);
+   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement('a');
+   a.href = url;
+   a.download = 'data.xlsx';
+   a.click();
+ 
+ }			
+	</script>
+</body>
+</html>
